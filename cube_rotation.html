@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title> Rotation Around Fixed Axes </title>
+ <meta name="author" content="Michael Feather">
+ <meta name=viewport content="width=device-width, initial-scale=1">
+ <style>
+  body { margin-left:10%; margin-right:10%; }
+  p { margin:0; text-align: justify; }
+  canvas { background-color: #cccccc; } 
+  .btn { height:50px; width:50px; padding:0; }
+ </style>
+</head>
+<body>
+<center>
+<font size=+2> Rotation Around Fixed Axes </font> 
+<br><br>
+<p>This program implements rotation via <a href=rotation.png>matrixes</a> (from 
+<a target=_blank href=https://en.wikipedia.org/wiki/Rotation_matrix#Basic_rotations>wikipedia</a>)
+around fixed XYZ axes in a modified version of this Rosetta Code:
+<a target=_blank href=https://rosettacode.org/wiki/Draw_a_rotating_cube#JavaScript>Draw a rotating cube</a>.
+</p>
+<br>
+<canvas></canvas>
+<br>
+<table>
+ <tr height=20>
+ <tr>
+  <td><button class=btn onclick=rotate(0,1)> X </button></td>
+  <td width=20>
+  <td><button class=btn onclick=rotate(1,1)> Y </button></td>
+  <td width=20>
+  <td><button class=btn onclick=rotate(2,1)> Z </button></td>
+ </tr>
+ <tr height=20>
+ <tr>
+  <td><button class=btn onclick=rotate(0,-1)> X' </button></td>
+  <td>
+  <td><button class=btn onclick=rotate(1,-1)> Y' </button></td>
+  <td>
+  <td><button class=btn onclick=rotate(2,-1)> Z' </button></td>
+ </tr>
+ <tr height=20>
+ <tr>
+  <td colspan=11 style=text-align:center>
+   <button onclick=reset() style="height:40px;width:100px"> Reset </button>
+  </td>
+ </tr>
+</table>
+<br>
+<a href="javascript: history.go(-1)">Back</a>
+<br><br>
+<script>
+"use strict;"
+var canvas = document.querySelector("canvas");
+canvas.width = 300;
+canvas.height = 300;
+var cubeSize = 80;
+var g = canvas.getContext("2d");
+
+var nodes = [];
+
+var nodes_init = [
+  [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1],
+  [ 1, -1, -1], [ 1, -1, 1], [ 1, 1, -1], [ 1, 1, 1]];
+
+var edges = [
+  [0, 1], [1, 3], [3, 2], [2, 0], [4, 5], [5, 7],
+  [7, 6], [6, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+
+function rotateCube(angle, axis) {
+  if (axis == 0)
+    angle *= -1;
+  var sin = Math.sin(angle);
+  var cos = Math.cos(angle);
+  for (i=0; i < 8; i++) { 
+    var node = nodes[i];
+    var x = node[0];
+    var y = node[1];
+    var z = node[2];
+    if (axis == 0) {
+      node[1] = cos * y - sin * z;
+      node[2] = sin * y + cos * z;
+    }
+    else if (axis == 1) {
+      node[0] = cos * x + sin * z;
+      node[2] = -sin * x + cos * z;
+    }
+    else if (axis == 2) {
+      node[0] = cos * x - sin * y;
+      node[1] = sin * x + cos * y;
+    }
+  }
+}
+ 
+function drawCube() {
+  g.save();
+  g.clearRect(0, 0, canvas.width, canvas.height);
+  g.translate(canvas.width / 2, canvas.height / 2);
+  g.beginPath();
+  for (i=0; i < 12; i++) {
+    var edge = edges[i];
+    var p1 = nodes[edge[0]];
+    var p2 = nodes[edge[1]];
+    g.moveTo(p1[0], p1[1]);
+    g.lineTo(p2[0], p2[1]);
+  }
+  g.closePath();
+  g.stroke();
+  g.restore();
+}
+
+init();
+reset();
+
+var id = 0;
+
+function init() {
+  for (var i=0; i < 8; i++)
+    nodes[i] = [];
+}
+
+function reset() {
+  if (id != 0) {
+    clearInterval(id);
+    id = 0;
+  }
+  for (var i=0; i < 8; i++)
+    for (var j=0; j < 3; j++)
+      nodes[i][j] = nodes_init[i][j]*cubeSize; 
+  rotateCube(-.3, 0);
+  rotateCube(.3, 1);
+  drawCube();
+}
+
+function rotate(axis, dir) {
+  if (id == 0) {
+    id = setInterval(function() {
+      rotateCube(.1*dir, axis);
+      drawCube();
+    }, 50);
+  }
+  else {
+    clearInterval(id);
+    id = 0;
+  }
+}
+
+</script>
+ 
+</center>
+</body>
+</html>

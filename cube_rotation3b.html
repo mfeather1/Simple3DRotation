@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title> Rotation Around Arbitrary Axes - Quaternions </title>
+ <meta name="author" content="Michael Feather">
+ <meta name=viewport content="width=device-width, initial-scale=1">
+ <style>
+  body { margin-left:10%; margin-right:10%; }
+  p { margin:0; text-align: justify; }
+  canvas { background-color: #cccccc; } 
+  .btn { height:50px; width:50px; padding:0; }
+ </style>
+</head>
+<body>
+<center>
+<font size=+2> Rotation Around Arbitrary Axes <br> Quaternions </font> 
+<br><br>
+<p>This program implements rotation via 
+<a target=_blank href=https://en.wikipedia.org/wiki/Quaternion>Quaternions</a>
+in a modified version of this Rosetta Code:
+<a target=_blank href=https://rosettacode.org/wiki/Draw_a_rotating_cube#JavaScript>Draw a rotating cube</a>.
+</p>
+<br>
+<canvas></canvas>
+<br>
+<table>
+ <tr height=20>
+ <tr>
+  <td><button class=btn onclick=rotate(0,1)> X </button></td>
+  <td width=20>
+  <td><button class=btn onclick=rotate(1,1)> Y </button></td>
+  <td width=20>
+  <td><button class=btn onclick=rotate(2,1)> Z </button></td>
+ </tr>
+ <tr height=20>
+ <tr>
+  <td><button class=btn onclick=rotate(0,-1)> X' </button></td>
+  <td>
+  <td><button class=btn onclick=rotate(1,-1)> Y' </button></td>
+  <td>
+  <td><button class=btn onclick=rotate(2,-1)> Z' </button></td>
+ </tr>
+ <tr height=20>
+ <tr>
+  <td colspan=11 style=text-align:center>
+   <button onclick=reset() style="height:40px;width:100px"> Reset </button>
+  </td>
+ </tr>
+</table>
+<br>
+<a href="javascript: history.go(-1)">Back</a>
+<br><br>
+<script>
+"use strict;"
+var canvas = document.querySelector("canvas");
+canvas.width = 300;
+canvas.height = 300;
+var cubeSize = 80;
+var g = canvas.getContext("2d");
+
+var axes = [];
+var nodes = [];
+
+var axes_init = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+
+var nodes_init = [
+  [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1],
+  [ 1, -1, -1], [ 1, -1, 1], [ 1, 1, -1], [ 1, 1, 1]];
+
+var edges = [
+  [0, 1], [1, 3], [3, 2], [2, 0], [4, 5], [5, 7],
+  [7, 6], [6, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+
+function rotateCube(angle, axis) {
+  if (axis > 0)
+    angle *= -1;
+  var a = axes[axis];
+  var h = angle/2;
+  var c = Math.cos(h);
+  var s = Math.sin(h);
+  var q = [a[0]*s, a[1]*s, a[2]*s, c];
+  var qp = [-q[0], -q[1], -q[2], c];
+  var q2 = [];
+  for (i=0; i < 8; i++) { 
+    qm(nodes[i], q, q2);
+    qm2(qp, q2, nodes[i]);
+  }
+  for (i=0; i < 3; i++) { 
+    qm(axes[i], q, q2);
+    qm2(qp, q2, axes[i]);
+  }
+}
+
+function qm(a, b, c) {
+  c[0] =  a[0] * b[3] + a[1] * b[2] - a[2] * b[1];
+  c[1] = -a[0] * b[2] + a[1] * b[3] + a[2] * b[0];
+  c[2] =  a[0] * b[1] - a[1] * b[0] + a[2] * b[3];
+  c[3] = -a[0] * b[0] - a[1] * b[1] - a[2] * b[2];
+}
+
+function qm2(a, b, c) {
+  c[0] = a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1];
+  c[1] = a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0];
+  c[2] = a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3];
+}
+
+function drawCube() {
+  g.save();
+  g.clearRect(0, 0, canvas.width, canvas.height);
+  g.translate(canvas.width / 2, canvas.height / 2);
+  g.beginPath();
+  for (i=0; i < 12; i++) {
+    var edge = edges[i];
+    var p1 = nodes[edge[0]];
+    var p2 = nodes[edge[1]];
+    g.moveTo(p1[0], p1[1]);
+    g.lineTo(p2[0], p2[1]);
+  }
+  g.closePath();
+  g.stroke();
+  g.restore();
+}
+
+init();
+reset();
+
+var id = 0;
+
+function init() {
+  for (var i=0; i < 3; i++)
+    axes[i] = [];
+  for (var i=0; i < 8; i++)
+    nodes[i] = [];
+}
+
+function reset() {
+  if (id != 0) {
+    clearInterval(id);
+    id = 0;
+  }
+  for (var i=0; i < 3; i++)
+    for (var j=0; j < 3; j++)
+      axes[i][j] = axes_init[i][j]; 
+  for (var i=0; i < 8; i++)
+    for (var j=0; j < 3; j++)
+      nodes[i][j] = nodes_init[i][j]*cubeSize; 
+  rotateCube(-.3, 0);
+  rotateCube(.3, 1);
+  drawCube();
+}
+
+function rotate(axis, dir) {
+  if (id == 0) {
+    id = setInterval(function() {
+      rotateCube(.1*dir, axis);
+      drawCube();
+    }, 50);
+  }
+  else {
+    clearInterval(id);
+    id = 0;
+  }
+}
+
+</script>
+ 
+</center>
+</body>
+</html>
