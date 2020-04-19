@@ -80,8 +80,6 @@ function rotateCube(angle, axis) {
   var x = axes[axis][0];
   var y = axes[axis][1];
   var z = axes[axis][2];
-  // the number of multiply operations can be reduced
-  // see cube_rotation2b.html
   var matrix = [
     [cos + x**2*t, x*y*t - z*sin, x*z*t + y*sin],
     [x*y*t + z*sin, cos + y**2*t, y*z*t - x*sin],
