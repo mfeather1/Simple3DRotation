@@ -17,8 +17,10 @@
 <br><br>
 <p>This program implements rotation as described
 <a target=_blank href=http://paulbourke.net/geometry/rotate/>here</a>
-(see section "Using quaternions" at bottom of page) using modified code
-from <a target=_blank href=http://sacredsoftware.net/tutorials/quaternion.html>here</a>
+(see section "Using quaternions" at bottom of page) and 
+<a href=https://math.stackexchange.com/questions/40164/how-do-you-rotate-a-vector-by-a-unit-quaternion>here</a>
+(search page for "point vector") using modified code from
+<a target=_blank href=http://sacredsoftware.net/tutorials/quaternion.html>here</a>
 (see function "Quaternion_multiply").</p>
 <br>
 <canvas></canvas>
@@ -79,7 +81,7 @@ function rotateCube(angle, axis) {
   var c = Math.cos(h);
   var s = Math.sin(h);
   var q2 = [a[0]*s, a[1]*s, a[2]*s, c];
-  var q2p = [-q2[0], -q2[1], -q2[2], c];
+  var q2p = [-q2[0], -q2[1], -q2[2], c];  // q2'
   var q3 = [];
   var q4 = [];
   for (i=0; i < 8; i++) { 
