@@ -82,13 +82,17 @@ function rotateCube(angle, axis) {
   var s = Math.sin(h);
   var q2 = [a[0]*s, a[1]*s, a[2]*s, c];
   var q2p = [-q2[0], -q2[1], -q2[2], c];  // q2'
-  for (var i=0; i < 8; i++) {
-    nodes[i] = qm(qm(q2, nodes[i]), q2p);
-    nodes[i][3] = 0; // reset 4d coord
+  for (var i=0; i < 8; i++) { 
+    var node = nodes[i];
+    var q1 = [node[0], node[1], node[2], 0];
+    var q3 = qm(qm(q2, q1), q2p);
+    nodes[i] = [q3[0], q3[1], q3[2]];
   }
-  for (var i=0; i < 3; i++) {
-    axes[i] = qm(qm(q2, axes[i]), q2p);
-    axes[i][3] = 0;
+  for (i=0; i < 3; i++) { 
+    node = axes[i];
+    q1 = [node[0], node[1], node[2], 0];
+    q3 = qm(qm(q2, q1), q2p);
+    axes[i] = [q3[0], q3[1], q3[2]];
   }
 }
 
@@ -137,16 +141,12 @@ function reset() {
     clearInterval(id);
     id = 0;
   }
-  for (var i=0; i < 3; i++) {
-    for (var j=0; j < 3; j++) 
+  for (var i=0; i < 3; i++)
+    for (var j=0; j < 3; j++)
       axes[i][j] = axes_init[i][j]; 
-    axes[i][3] = 0;  // 4d coord
-  }
-  for (var i=0; i < 8; i++) {
+  for (var i=0; i < 8; i++)
     for (var j=0; j < 3; j++)
       nodes[i][j] = nodes_init[i][j]*cubeSize; 
-    nodes[i][3] = 0;
-  }
   rotateCube(-.3, 0);
   rotateCube(.3, 1);
   drawCube();
