@@ -51,7 +51,7 @@ around fixed XYZ axes in a modified version of this Rosetta Code:
 <a href="javascript: history.go(-1)">Back</a>
 <br><br>
 <script>
-"use strict;"
+"use strict";
 var canvas = document.querySelector("canvas");
 canvas.width = 300;
 canvas.height = 300;
@@ -73,7 +73,7 @@ function rotateCube(angle, axis) {
     angle *= -1;
   var sin = Math.sin(angle);
   var cos = Math.cos(angle);
-  for (i=0; i < 8; i++) { 
+  for (var i=0; i < 8; i++) { 
     var node = nodes[i];
     var x = node[0];
     var y = node[1];
@@ -98,7 +98,7 @@ function drawCube() {
   g.clearRect(0, 0, canvas.width, canvas.height);
   g.translate(canvas.width / 2, canvas.height / 2);
   g.beginPath();
-  for (i=0; i < 12; i++) {
+  for (var i=0; i < 12; i++) {
     var edge = edges[i];
     var p1 = nodes[edge[0]];
     var p2 = nodes[edge[1]];

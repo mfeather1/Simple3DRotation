@@ -53,7 +53,7 @@
 <a href="javascript: history.go(-1)">Back</a>
 <br><br>
 <script>
-"use strict;"
+"use strict";
 var canvas = document.querySelector("canvas");
 canvas.width = 300;
 canvas.height = 300;
@@ -82,32 +82,25 @@ function rotateCube(angle, axis) {
   var s = Math.sin(h);
   var q2 = [a[0]*s, a[1]*s, a[2]*s, c];
   var q2p = [-q2[0], -q2[1], -q2[2], c];  // q2'
-  var q3 = [];
-  var q4 = [];
-  for (i=0; i < 8; i++) { 
-    var node = nodes[i];
-    var q1 = [node[0], node[1], node[2], 0];
-    qm(q1, q2, q3);
-    qm(q2p, q3, q4);
-    for (j=0; j < 3; j++)
-      node[j] = q4[j];
+  for (var i=0; i < 8; i++) {
+    nodes[i] = qm(qm(q2, nodes[i]), q2p);
+    nodes[i][3] = 0; // reset 4d coord
   }
-  for (i=0; i < 3; i++) { 
-    var node = axes[i];
-    var q1 = [node[0], node[1], node[2], 0];
-    qm(q1, q2, q3);
-    qm(q2p, q3, q4);
-    for (j=0; j < 3; j++)
-      node[j] = q4[j];
+  for (var i=0; i < 3; i++) {
+    axes[i] = qm(qm(q2, axes[i]), q2p);
+    axes[i][3] = 0;
   }
 }
 
-function qm(a, b, c) {
+function qm(b, a) {
   // quaternion multiply from http://sacredsoftware.net/tutorials/quaternion.html
+  // parameter order switched to match documentation from the other two sources
+  var c = [];
   c[0] = a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1];
   c[1] = a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0];
   c[2] = a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3];
   c[3] = a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2];
+  return c;
 }
 
 function drawCube() {
@@ -115,7 +108,7 @@ function drawCube() {
   g.clearRect(0, 0, canvas.width, canvas.height);
   g.translate(canvas.width / 2, canvas.height / 2);
   g.beginPath();
-  for (i=0; i < 12; i++) {
+  for (var i=0; i < 12; i++) {
     var edge = edges[i];
     var p1 = nodes[edge[0]];
     var p2 = nodes[edge[1]];
@@ -144,12 +137,16 @@ function reset() {
     clearInterval(id);
     id = 0;
   }
-  for (var i=0; i < 3; i++)
-    for (var j=0; j < 3; j++)
+  for (var i=0; i < 3; i++) {
+    for (var j=0; j < 3; j++) 
       axes[i][j] = axes_init[i][j]; 
-  for (var i=0; i < 8; i++)
+    axes[i][3] = 0;  // 4d coord
+  }
+  for (var i=0; i < 8; i++) {
     for (var j=0; j < 3; j++)
       nodes[i][j] = nodes_init[i][j]*cubeSize; 
+    nodes[i][3] = 0;
+  }
   rotateCube(-.3, 0);
   rotateCube(.3, 1);
   drawCube();

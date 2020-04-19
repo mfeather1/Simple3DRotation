@@ -51,7 +51,7 @@ Rotation is implemented via a <a href=rotation2.png>matrix</a> (from
 <a href="javascript: history.go(-1)">Back</a>
 <br><br>
 <script>
-"use strict;"
+"use strict";
 var canvas = document.querySelector("canvas");
 canvas.width = 300;
 canvas.height = 300;
@@ -72,6 +72,7 @@ var edges = [
   [7, 6], [6, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
 
 function rotateCube(angle, axis) {
+  var tmp = [];
   if (axis != 1)
     angle *= -1;
   var sin = Math.sin(angle);
@@ -84,9 +85,9 @@ function rotateCube(angle, axis) {
     [cos + x**2*t, x*y*t - z*sin, x*z*t + y*sin],
     [x*y*t + z*sin, cos + y**2*t, y*z*t - x*sin],
     [x*z*t - y*sin, y*z*t + x*sin, cos + z**2*t]];
-  tmp = [];
-  for (i=0; i < 8; i++) { 
-    for (j=0; j < 3; j++) { 
+  var tmp = [];
+  for (var i=0; i < 8; i++) { 
+    for (var j=0; j < 3; j++) { 
       for (var k=0, sum=0; k < 3; k++)
         sum += matrix[k][j] * nodes[i][k];
       tmp[j] = sum;
@@ -110,7 +111,7 @@ function drawCube() {
   g.clearRect(0, 0, canvas.width, canvas.height);
   g.translate(canvas.width / 2, canvas.height / 2);
   g.beginPath();
-  for (i=0; i < 12; i++) {
+  for (var i=0; i < 12; i++) {
     var edge = edges[i];
     var p1 = nodes[edge[0]];
     var p2 = nodes[edge[1]];
