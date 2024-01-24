@@ -60,6 +60,7 @@ canvas.height = 300;
 var cubeSize = 80;
 var g = canvas.getContext("2d");
 
+var q2, q2p;
 var axes = [];
 var nodes = [];
 
@@ -73,15 +74,18 @@ var edges = [
   [0, 1], [1, 3], [3, 2], [2, 0], [4, 5], [5, 7],
   [7, 6], [6, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
 
-function rotateCube(angle, axis) {
+function computeQ(angle, axis) {
   if (axis > 0)
     angle *= -1;
   var a = axes[axis];
   var h = angle/2;
   var c = Math.cos(h);
   var s = Math.sin(h);
-  var q2 = [a[0]*s, a[1]*s, a[2]*s, c];
-  var q2p = [-q2[0], -q2[1], -q2[2], c];  // q2'
+  q2 = [a[0]*s, a[1]*s, a[2]*s, c];
+  q2p = [-q2[0], -q2[1], -q2[2], c];  // q2'
+}
+
+function rotateCube() {
   for (var i=0; i < 8; i++) { 
     var node = nodes[i];
     var q1 = [node[0], node[1], node[2], 0];
@@ -147,15 +151,18 @@ function reset() {
   for (var i=0; i < 8; i++)
     for (var j=0; j < 3; j++)
       nodes[i][j] = nodes_init[i][j]*cubeSize; 
-  rotateCube(-.3, 0);
-  rotateCube(.3, 1);
+  computeQ(-0.3, 0);
+  rotateCube();
+  computeQ(0.3, 1);
+  rotateCube();
   drawCube();
 }
 
 function rotate(axis, dir) {
+  computeQ(.1*dir, axis);
   if (id == 0) {
     id = setInterval(function() {
-      rotateCube(.1*dir, axis);
+      rotateCube();
       drawCube();
     }, 50);
   }
